@@ -14,13 +14,9 @@ input_size = My_img.shape[0]
 output_size = 1
 
 # Инициализация весов и биасов
-fan_in, fan_out = input_size, HIDDEN_NEURONS
-xavier_scale = np.sqrt(2.0 / (fan_in + fan_out))
-W_hidden = np.random.randn(HIDDEN_NEURONS, input_size) * xavier_scale
-
-fan_in, fan_out = HIDDEN_NEURONS, output_size
-xavier_scale = np.sqrt(2.0 / (fan_in + fan_out))
-W_output = np.random.randn(output_size, HIDDEN_NEURONS) * xavier_scale
+# Инициализация весов и биасов случайными значениями из диапазона [-0.1, 0.1]
+W_hidden = np.random.uniform(-0.1, 0.1, (HIDDEN_NEURONS, input_size))
+W_output = np.random.uniform(-0.1, 0.1, (output_size, HIDDEN_NEURONS))
 
 bias_hidden = np.zeros(HIDDEN_NEURONS)
 bias_output = np.zeros(output_size)
@@ -63,9 +59,13 @@ for epoch in range(EPOCH):
         final_output = sigmoid(final_input).item()
 
         outputs_epoch.append(final_output)
-        loss_epoch += 0.5 * (final_output - target) ** 2  # MSE
+        # loss_epoch += 0.5 * (final_output - target) ** 2  # MSE
 
-        predicted = 1 if final_output > POROG else 0
+        if final_output > POROG:
+            predicted = 1
+        else:
+            predicted = 0
+
         if predicted == 1:
             predictions_1 += 1
         else:
@@ -84,15 +84,12 @@ for epoch in range(EPOCH):
 
     # Статистика
     acc = correct / len(X)
-    loss_epoch /= len(X)
-    hidden_vals = np.array(hidden_vals)
+    # loss_epoch /= len(X)
+    # hidden_vals = np.array(hidden_vals)
 
     print(f"\nEpoch {epoch+1}/{EPOCH}")
     print(f"Accuracy     : {acc:.2%} | Correct: {correct}/{len(X)}")
     print(f"Predictions  : 1 => {predictions_1}, 0 => {predictions_0}")
-    print(f"Loss (MSE)   : {loss_epoch:.6f}")
-    print(f"Hidden output: min={hidden_vals.min():.4f}, max={hidden_vals.max():.4f}, mean={hidden_vals.mean():.4f}")
-    print(f"Final output : min={min(outputs_epoch):.4f}, max={max(outputs_epoch):.4f}, mean={np.mean(outputs_epoch):.4f}")
     print(f"Weights range: W_hid={W_hidden.min():.4f}..{W_hidden.max():.4f} | W_out={W_output.min():.4f}..{W_output.max():.4f}")
     print(f"Time taken   : {time.time() - start:.2f}s")
 

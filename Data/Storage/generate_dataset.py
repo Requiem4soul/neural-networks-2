@@ -11,9 +11,9 @@ def generate_dataset(dataset_type=1):
     Баланс: 90% ложных, 10% истинных примеров.
     """
     config = {
-        1: {"path": "Datasets/Low", "rate": 0.97},
-        2: {"path": "Datasets/Medium", "rate": 0.95},
-        3: {"path": "Datasets/Large", "rate": 0.93}
+        1: {"path": "Datasets/Low", "rate": 0.9},
+        2: {"path": "Datasets/Medium", "rate": 0.7},
+        3: {"path": "Datasets/Large", "rate": 0.5}
     }
 
     if dataset_type not in config:
