@@ -23,7 +23,7 @@ def generate_all_images():
 
 
 # Загружаем веса
-weights = np.load("weights_final_20250521_170020.npz")  # Укажите путь к нужному файлу весов
+weights = np.load("weights_final_20250521_223507.npz")  # Укажите путь к нужному файлу весов
 W_hidden = weights['W_hidden']
 W_output = weights['W_output']
 bias_hidden = weights['bias_hidden']
@@ -35,7 +35,6 @@ X_test, y_test = generate_all_images()
 correct = 0
 predictions_1 = 0
 predictions_0 = 0
-loss = 0.0
 
 for xi, target in zip(X_test, y_test):
     # Прямой проход
@@ -44,18 +43,23 @@ for xi, target in zip(X_test, y_test):
     final_input = forward_output_layer(hidden_output, W_output, bias_output)
     final_output = sigmoid(final_input).item()
 
-    loss += 0.5 * (final_output - target) ** 2  # MSE
-    predicted = 1 if final_output > POROG else 0
+    if final_output > POROG:
+        predicted = 1
+    else:
+        predicted = 0
+
     if predicted == 1:
         predictions_1 += 1
     else:
         predictions_0 += 1
+
     if predicted == target:
         correct += 1
 
 # Вывод результатов
 acc = correct / len(X_test)
-loss /= len(X_test)
 print(f"Test Accuracy: {acc:.2%} | Correct: {correct}/{len(X_test)}")
-print(f"Test Predictions: 1 => {predictions_1}, 0 => {predictions_0}")
-print(f"Test Loss (MSE): {loss:.6f}")
+print(f"Test Predictions: 1 => {predictions_1}, 0 => {predictions_0}\n")
+
+if correct == 2**16:
+    print(f"0 Ошибок - это идеальный результат")
