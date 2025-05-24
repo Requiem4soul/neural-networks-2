@@ -22,10 +22,6 @@ W_output = np.random.uniform(-0.1, 0.1, (output_size, HIDDEN_NEURONS))
 bias_hidden = np.zeros(HIDDEN_NEURONS)
 bias_output = np.zeros(output_size)
 
-print(">>> INITIAL WEIGHT RANGES <<<")
-print(f"W_hidden: {W_hidden.min():.4f} to {W_hidden.max():.4f}")
-print(f"W_output: {W_output.min():.4f} to {W_output.max():.4f}\n")
-
 # Создаём папку для сохранения с временной меткой
 timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
 save_base_dir = os.path.join("Data", "Storage", "Saves", f"training_{timestamp}")
