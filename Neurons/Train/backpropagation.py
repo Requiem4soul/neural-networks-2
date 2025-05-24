@@ -21,6 +21,8 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
 
     # 2. Градиент выхода
     grad_output = final_error * sigmoid_derivative(final_output)
+    # Мне надоело что скрытые нейроны стремятся к бесконечно вечному
+    grad_output = np.clip(grad_output, -1.0, 1.0)
     for i in range(len(W_hidden_output[0])):
         delta_W_hidden_output = learning_rate * grad_output * hidden_outputs[i]
         W_hidden_output[0][i] = W_hidden_output[0][i] + delta_W_hidden_output
@@ -30,10 +32,12 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
 
 
     # 3. Обратная ошибка скрытого слоя
-    hidden_error = np.zeros(32)
+    hidden_error = np.zeros(len(hidden_outputs))
 
     for i in range(len(hidden_error)):
         hidden_error[i] = grad_output * W_hidden_output[0][i] * sigmoid_derivative(hidden_outputs[i])
+        # Мне надоело что скрытые нейроны стремятся к бесконечно вечному
+        hidden_error[i] = np.clip(hidden_error[i], -1.0, 1.0)
 
     # 4. Обновление весов и смещения скрытого слоя
     for i in range(len(W_input_hidden)):
