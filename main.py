@@ -44,11 +44,10 @@ print(f"Target image saved to {my_img_path}")
 
 # Функция для сохранения весов
 def save_weights(W_hidden, W_output, bias_hidden, bias_output, epoch=None):
-    timestamp = datetime.datetime.now().strftime('%Y%m%d_%H%M%S')
     if epoch is not None:
-        weights_path = f"weights_epoch_{epoch}_{timestamp}.npz"
+        weights_path = os.path.join(weights_dir, f"weights_epoch_{epoch}_{timestamp}.npz")
     else:
-        weights_path = f"weights_final_{timestamp}.npz"
+        weights_path = os.path.join(weights_dir, f"weights_final_{timestamp}.npz")
     np.savez(weights_path,
              W_hidden=W_hidden,
              W_output=W_output,

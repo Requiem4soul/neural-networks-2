@@ -174,5 +174,5 @@ cython_debug/
 .pypirc
 
 # Custom
-.png
-.npz
+*.png
+*.npz

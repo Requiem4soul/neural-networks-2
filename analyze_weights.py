@@ -1,7 +1,7 @@
 import numpy as np
 
 # Путь к файлу с весами
-weights_path = "Data/Storage/Saves/training_20250524_235940/weights/weights_final_20250524_235940.npz"
+weights_path = "Data/Storage/Saves/training_20250525_002601/weights/weights_final_20250525_002601.npz"
 
 # Загружаем веса
 data = np.load(weights_path)
