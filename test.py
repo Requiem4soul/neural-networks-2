@@ -23,7 +23,7 @@ def generate_all_images():
 
 
 # Загружаем веса
-weights = np.load("weights_final_20250521_223507.npz")  # Укажите путь к нужному файлу весов
+weights = np.load("Data/Storage/Saves/training_20250525_133656/weights/weights_final_20250525_133656.npz")  # Укажите путь к нужному файлу весов
 W_hidden = weights['W_hidden']
 W_output = weights['W_output']
 bias_hidden = weights['bias_hidden']

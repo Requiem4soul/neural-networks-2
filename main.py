@@ -36,7 +36,7 @@ my_img_array = My_img.reshape(4, 4) * 255  # 0->0 (чёрный), 1->255 (бел
 my_img = Image.fromarray(my_img_array.astype(np.uint8), mode='L')
 my_img_path = os.path.join(save_base_dir, "target_image.png")
 my_img.save(my_img_path)
-print(f"Target image saved to {my_img_path}")
+print(f"Эталонное изображение сохранено в {my_img_path}")
 
 # Функция для сохранения весов
 def save_weights(W_hidden, W_output, bias_hidden, bias_output, epoch=None):
@@ -93,15 +93,15 @@ for epoch in range(EPOCH):
 
     # Статистика
     acc = correct / len(X)
-    print(f"\nEpoch {epoch+1}/{EPOCH}")
-    print(f"Accuracy     : {acc:.2%} | Correct: {correct}/{len(X)}")
-    print(f"Predictions  : 1 => {predictions_1}, 0 => {predictions_0}")
-    print(f"Weights range: W_hid={W_hidden.min():.4f}..{W_hidden.max():.4f} | W_out={W_output.min():.4f}..{W_output.max():.4f}")
-    print(f"Time taken   : {time.time() - start:.2f}s")
+    print(f"\nЭпоха {epoch+1}/{EPOCH}")
+    print(f"Точность: {acc:.2%} | Правильных: {correct}/{len(X)}")
+    print(f"Определено классов верно: 1 => {predictions_1}, 0 => {predictions_0}")
+    print(f"Разброс весов: W_hid={W_hidden.min():.4f}..{W_hidden.max():.4f} | W_out={W_output.min():.4f}..{W_output.max():.4f}")
+    print(f"Время на эпоху: {time.time() - start:.2f}s")
 
     # Проверка на достижение 100% точности
     if acc >= 1.0:
-        print(f"Reached 100% accuracy at epoch {epoch+1}, stopping training.")
+        print(f"Достигнуто 100% точности на эпохе {epoch+1}, обучение завершается.")
         save_weights(W_hidden, W_output, bias_hidden, bias_output)
         visualize_neuron_weights(W_hidden, visualizations_dir, epoch=epoch+1)
         break

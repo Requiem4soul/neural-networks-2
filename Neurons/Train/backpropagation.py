@@ -17,7 +17,13 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
                   learning_rate):
 
     # 1. Ошибка выходного слоя
-    final_error =  expected_output - final_output
+    final_error = expected_output - final_output
+
+    if LOG:
+        print("\n[ОШИБКА]")
+        print(f"Ожидаемый выход: {expected_output}")
+        print(f"Фактический выход: {final_output:.4f}")
+        print(f"Вычисленная ошибка: {final_error:.4f}")
 
     # 2. Градиент выхода
     grad_output = final_error * sigmoid_derivative(final_output)

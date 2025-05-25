@@ -9,7 +9,7 @@ def forward_hidden_layer(inputs, weights, bias):
     Прямой проход через скрытый слой.
     """
     net = np.dot(weights, inputs) + bias
-    return sigmoid(net)  # Это значение активации передаём в выходной нейрон потом от каждого
+    return sigmoid(net)
 
 def forward_output_layer(hidden_activations, weights, bias):
     """
