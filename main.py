@@ -3,6 +3,8 @@ import time
 import datetime
 import os
 from PIL import Image
+from test import check_result
+from Data.Storage.generate_dataset import generate_dataset
 from Input.base_input_data import My_img, POROG, MY_DATASET, EPOCH, LEARNING_RATE, HIDDEN_NEURONS, LOG, BUFFER_RANGE
 from Neurons.Train.forward_pass import forward_hidden_layer, forward_output_layer
 from Neurons.Train.backpropagation import backpropagate
@@ -10,6 +12,14 @@ from Visual.visualization import visualize_neuron_weights
 
 # Переменная для прекращения обучения при повторении BUFFER_RANGE раз
 repeats = {}
+
+print("="*100)
+# Лучше сюда поместить генерацию датасета, чтобы я очередной инфаркт не ловил
+for t in [1, 2, 3]:
+    generate_dataset(dataset_type=t)
+
+print(f"\nИспользуется датасет: {MY_DATASET}\n")
+print("="*100)
 
 # Загружаем датасет
 data = np.load(MY_DATASET)
@@ -43,7 +53,9 @@ my_img_array = My_img.reshape(4, 4) * 255  # 0->0 (чёрный), 1->255 (бел
 my_img = Image.fromarray(my_img_array.astype(np.uint8), mode='L')
 my_img_path = os.path.join(save_base_dir, "target_image.png")
 my_img.save(my_img_path)
-print(f"\nЭталонное изображение сохранено в {my_img_path}")
+print(f"\nЭталонное изображение сохранено в {my_img_path}\n")
+
+print("="*100)
 
 
 # Функция для сохранения весов
@@ -55,6 +67,7 @@ def save_weights(W_hidden, W_output, bias_hidden, bias_output, epoch=None):
              bias_hidden=bias_hidden,
              bias_output=bias_output)
     print(f"Веса сохранены в {weights_path}")
+    return weights_path
 
 
 for epoch in range(EPOCH):
@@ -121,12 +134,17 @@ for epoch in range(EPOCH):
 
     # Проверка на достижение высокой точности
     if acc >= 1:  # Снизил порог для более реалистичной цели
-        print(f"Достигнута высокая точность ({acc:.2%}) на эпохе {epoch + 1}, обучение завершается.")
-        save_weights(W_hidden, W_output, bias_hidden, bias_output, epoch=epoch + 1)
+        print(f"Достигнута высокая точность ({acc:.2%}) на эпохе {epoch + 1}, обучение завершается.\n")
+        weights_path = save_weights(W_hidden, W_output, bias_hidden, bias_output, epoch=epoch + 1)
         visualize_neuron_weights(W_hidden, visualizations_dir, epoch=epoch + 1)
+        print("="*100)
         break
 
 # Финальное сохранение и визуализация
 if acc < 1:
-    save_weights(W_hidden, W_output, bias_hidden, bias_output)
+    weights_path = save_weights(W_hidden, W_output, bias_hidden, bias_output)
     visualize_neuron_weights(W_hidden, visualizations_dir, epoch=epoch + 1)
+    print(f"Обучение закончено с точностью {acc: .2%}\n")
+    print("="*100)
+
+check_result(weights_path)

@@ -43,8 +43,6 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
     # W_input_hidden имеет форму (HIDDEN_NEURONS, input_size)
     for i in range(W_input_hidden.shape[0]):
         for j in range(W_input_hidden.shape[1]):
-            if inputs[j] == 0:
-                continue
             delta_W = learning_rate * hidden_errors[i] * inputs[j]
             W_input_hidden[i, j] += delta_W
 

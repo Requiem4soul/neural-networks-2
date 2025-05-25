@@ -6,14 +6,10 @@ import random
 
 
 def generate_dataset(dataset_type=1):
-    """
-    Генерирует датасет с чёрно-белыми изображениями 4x4.
-    Баланс: 90% ложных, 10% истинных примеров.
-    """
     config = {
-        1: {"path": "Datasets/Low", "rate": 0.9},
-        2: {"path": "Datasets/Medium", "rate": 0.7},
-        3: {"path": "Datasets/Large", "rate": 0.5}
+        1: {"path": "Datasets/Low", "rate": 0.8},
+        2: {"path": "Datasets/Medium", "rate": 0.6},
+        3: {"path": "Datasets/Large", "rate": 0.4}
     }
 
     if dataset_type not in config:
