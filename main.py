@@ -40,7 +40,7 @@ my_img_array = My_img.reshape(4, 4) * 255  # 0->0 (чёрный), 1->255 (бел
 my_img = Image.fromarray(my_img_array.astype(np.uint8), mode='L')
 my_img_path = os.path.join(save_base_dir, "target_image.png")
 my_img.save(my_img_path)
-print(f"Эталонное изображение сохранено в {my_img_path}")
+print(f"\nЭталонное изображение сохранено в {my_img_path}")
 
 
 # Функция для сохранения весов
@@ -51,7 +51,7 @@ def save_weights(W_hidden, W_output, bias_hidden, bias_output, epoch=None):
              W_output=W_output,
              bias_hidden=bias_hidden,
              bias_output=bias_output)
-    print(f"Weights saved to {weights_path}")
+    print(f"Веса сохранены в {weights_path}")
 
 
 for epoch in range(EPOCH):
@@ -62,12 +62,9 @@ for epoch in range(EPOCH):
     predictions_0 = 0
 
     for xi, target in zip(X, y):
-        # --- Прямой проход ---
-        # ИСПРАВЛЕНО: Убрано дублирование sigmoid
         hidden_output = forward_hidden_layer(xi, W_hidden, bias_hidden)
 
         final_output = forward_output_layer(hidden_output, W_output, bias_output)
-        # final_output уже является скаляром после sigmoid
 
         outputs_epoch.append(final_output)
 
@@ -81,7 +78,7 @@ for epoch in range(EPOCH):
         if predicted == target:
             correct += 1
 
-        # --- Обратный проход ---
+        # Обратный проход
         W_hidden, W_output, bias_hidden, bias_output = backpropagate(
             xi, hidden_output, final_output, target,
             W_hidden, W_output,

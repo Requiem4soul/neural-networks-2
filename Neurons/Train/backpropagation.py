@@ -3,7 +3,7 @@ from Input.base_input_data import LOG
 
 
 def sigmoid(x):
-    x = np.clip(x, -500, 500)  # Предотвращаем overflow
+    x = np.clip(x, -500, 500)
     return 1 / (1 + np.exp(-x))
 
 
@@ -33,9 +33,7 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
     # 2. Градиент выходного слоя
     grad_output = final_error * sigmoid_derivative(final_output)
 
-    # ИСПРАВЛЕНО: Правильное обновление весов выходного слоя
-    # W_hidden_output имеет форму (1, HIDDEN_NEURONS)
-    for i in range(W_hidden_output.shape[1]):  # по количеству скрытых нейронов
+    for i in range(W_hidden_output.shape[1]):
         delta_W = learning_rate * grad_output * hidden_outputs[i]
         W_hidden_output[0, i] += delta_W
 
@@ -46,7 +44,6 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
     hidden_errors = np.zeros(len(hidden_outputs))
 
     for i in range(len(hidden_outputs)):
-        # ИСПРАВЛЕНО: Правильный расчет ошибки скрытого слоя
         hidden_errors[i] = grad_output * W_hidden_output[0, i] * sigmoid_derivative(hidden_outputs[i])
 
     # 4. Обновление весов скрытого слоя
@@ -59,8 +56,8 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
         # Обновление bias скрытого слоя
         bias_hidden[i] += learning_rate * hidden_errors[i]
 
-    # Ограничиваем веса для предотвращения взрывного роста
-    W_input_hidden = clip_weights(W_input_hidden, threshold=10.0)  # Увеличил лимит
+    # Ограничиваем веса
+    W_input_hidden = clip_weights(W_input_hidden, threshold=10.0)
     W_hidden_output = clip_weights(W_hidden_output, threshold=10.0)
 
     return W_input_hidden, W_hidden_output, bias_hidden, bias_output
