@@ -1,21 +1,25 @@
 import numpy as np
 from Input.base_input_data import LOG
 
+
 def sigmoid(x):
+    x = np.clip(x, -500, 500)  # Предотвращаем overflow
     return 1 / (1 + np.exp(-x))
+
 
 def sigmoid_derivative(sigmoid_output):
     return sigmoid_output * (1 - sigmoid_output)
+
 
 def clip_weights(weights, threshold=5.0):
     """Ограничивает веса до заданного порога"""
     return np.clip(weights, -threshold, threshold)
 
+
 def backpropagate(inputs, hidden_outputs, final_output, expected_output,
                   W_input_hidden, W_hidden_output,
                   bias_hidden, bias_output,
                   learning_rate):
-
     # 1. Ошибка выходного слоя
     final_error = expected_output - final_output
 
@@ -24,38 +28,39 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
         print(f"Ожидаемый выход: {expected_output}")
         print(f"Фактический выход: {final_output:.4f}")
         print(f"Вычисленная ошибка: {final_error:.4f}")
+        print(f"Величина обновления: {final_error * sigmoid_derivative(final_output):.4f}")
 
-    # 2. Градиент выхода
+    # 2. Градиент выходного слоя
     grad_output = final_error * sigmoid_derivative(final_output)
-    # Мне надоело что скрытые нейроны стремятся к бесконечно вечному
-    grad_output = np.clip(grad_output, -1.0, 1.0)
-    for i in range(len(W_hidden_output[0])):
-        delta_W_hidden_output = learning_rate * grad_output * hidden_outputs[i]
-        W_hidden_output[0][i] = W_hidden_output[0][i] + delta_W_hidden_output
 
-    delta_bias_output = learning_rate * grad_output
-    bias_output[0] = bias_output[0] + delta_bias_output
+    # ИСПРАВЛЕНО: Правильное обновление весов выходного слоя
+    # W_hidden_output имеет форму (1, HIDDEN_NEURONS)
+    for i in range(W_hidden_output.shape[1]):  # по количеству скрытых нейронов
+        delta_W = learning_rate * grad_output * hidden_outputs[i]
+        W_hidden_output[0, i] += delta_W
 
+    # Обновление bias выходного слоя
+    bias_output[0] += learning_rate * grad_output
 
-    # 3. Обратная ошибка скрытого слоя
-    hidden_error = np.zeros(len(hidden_outputs))
+    # 3. Обратная ошибка для скрытого слоя
+    hidden_errors = np.zeros(len(hidden_outputs))
 
-    for i in range(len(hidden_error)):
-        hidden_error[i] = grad_output * W_hidden_output[0][i] * sigmoid_derivative(hidden_outputs[i])
-        # Мне надоело что скрытые нейроны стремятся к бесконечно вечному
-        hidden_error[i] = np.clip(hidden_error[i], -1.0, 1.0)
+    for i in range(len(hidden_outputs)):
+        # ИСПРАВЛЕНО: Правильный расчет ошибки скрытого слоя
+        hidden_errors[i] = grad_output * W_hidden_output[0, i] * sigmoid_derivative(hidden_outputs[i])
 
-    # 4. Обновление весов и смещения скрытого слоя
-    for i in range(len(W_input_hidden)):
-        for j in range(len(inputs)):
-            delta_W_input = learning_rate * hidden_error[i] * inputs[j]
-            W_input_hidden[i][j] = W_input_hidden[i][j] + delta_W_input
+    # 4. Обновление весов скрытого слоя
+    # W_input_hidden имеет форму (HIDDEN_NEURONS, input_size)
+    for i in range(W_input_hidden.shape[0]):  # по скрытым нейронам
+        for j in range(W_input_hidden.shape[1]):  # по входным признакам
+            delta_W = learning_rate * hidden_errors[i] * inputs[j]
+            W_input_hidden[i, j] += delta_W
 
-        delta_bias_input = learning_rate * hidden_error[i]
-        bias_hidden[i] = bias_hidden[i] + delta_bias_input
+        # Обновление bias скрытого слоя
+        bias_hidden[i] += learning_rate * hidden_errors[i]
 
-    # Ограничиваем веса для предотвращения их взрывного роста
-    W_input_hidden = clip_weights(W_input_hidden, threshold=5.0)
-    W_hidden_output = clip_weights(W_hidden_output, threshold=5.0)
+    # Ограничиваем веса для предотвращения взрывного роста
+    W_input_hidden = clip_weights(W_input_hidden, threshold=10.0)  # Увеличил лимит
+    W_hidden_output = clip_weights(W_hidden_output, threshold=10.0)
 
     return W_input_hidden, W_hidden_output, bias_hidden, bias_output

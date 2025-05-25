@@ -43,7 +43,7 @@ def generate_dataset(dataset_type=1):
 
     # Вычисляем нужное количество положительных примеров
     n_negative = len(negative_images)
-    n_positive = int(n_negative / 0.5)  # 10% от общего => pos = neg / 9
+    n_positive = int(n_negative * 0.1 / 0.9)
 
     positive_images = [My_img.copy() for _ in range(n_positive)]
     positive_labels = [1] * n_positive

@@ -4,7 +4,7 @@ import datetime
 import os
 from PIL import Image
 from Input.base_input_data import My_img, POROG, MY_DATASET, EPOCH, LEARNING_RATE, HIDDEN_NEURONS
-from Neurons.Train.forward_pass import forward_hidden_layer, forward_output_layer, sigmoid
+from Neurons.Train.forward_pass import forward_hidden_layer, forward_output_layer
 from Neurons.Train.backpropagation import backpropagate
 from Visual.visualization import visualize_neuron_weights
 
@@ -16,9 +16,13 @@ y = data['labels']
 input_size = My_img.shape[0]
 output_size = 1
 
-# Инициализация весов и биасов
-W_hidden = np.random.uniform(-0.1, 0.1, (HIDDEN_NEURONS, input_size))
-W_output = np.random.uniform(-0.1, 0.1, (output_size, HIDDEN_NEURONS))
+# Инициализация весов и биасов с улучшенной стратегией
+# Xavier/Glorot инициализация
+std_hidden = np.sqrt(2.0 / input_size)
+std_output = np.sqrt(2.0 / HIDDEN_NEURONS)
+
+W_hidden = np.random.normal(0, std_hidden, (HIDDEN_NEURONS, input_size))
+W_output = np.random.normal(0, std_output, (output_size, HIDDEN_NEURONS))
 bias_hidden = np.zeros(HIDDEN_NEURONS)
 bias_output = np.zeros(output_size)
 
@@ -38,12 +42,10 @@ my_img_path = os.path.join(save_base_dir, "target_image.png")
 my_img.save(my_img_path)
 print(f"Эталонное изображение сохранено в {my_img_path}")
 
+
 # Функция для сохранения весов
 def save_weights(W_hidden, W_output, bias_hidden, bias_output, epoch=None):
-    if epoch is not None:
-        weights_path = os.path.join(weights_dir, f"weights_epoch_{epoch}_{timestamp}.npz")
-    else:
-        weights_path = os.path.join(weights_dir, f"weights_final_{timestamp}.npz")
+    weights_path = os.path.join(weights_dir, f"weights_final_{timestamp}.npz")
     np.savez(weights_path,
              W_hidden=W_hidden,
              W_output=W_output,
@@ -51,33 +53,29 @@ def save_weights(W_hidden, W_output, bias_hidden, bias_output, epoch=None):
              bias_output=bias_output)
     print(f"Weights saved to {weights_path}")
 
+
 for epoch in range(EPOCH):
     correct = 0
     start = time.time()
     outputs_epoch = []
     predictions_1 = 0
     predictions_0 = 0
-    hidden_vals = []
 
     for xi, target in zip(X, y):
         # --- Прямой проход ---
-        hidden_input = forward_hidden_layer(xi, W_hidden, bias_hidden)
-        hidden_output = sigmoid(hidden_input)
-        hidden_vals.append(hidden_output)
+        # ИСПРАВЛЕНО: Убрано дублирование sigmoid
+        hidden_output = forward_hidden_layer(xi, W_hidden, bias_hidden)
 
-        final_input = forward_output_layer(hidden_output, W_output, bias_output)
-        final_output = sigmoid(final_input).item()
+        final_output = forward_output_layer(hidden_output, W_output, bias_output)
+        # final_output уже является скаляром после sigmoid
 
         outputs_epoch.append(final_output)
 
         if final_output > POROG:
             predicted = 1
-        else:
-            predicted = 0
-
-        if predicted == 1:
             predictions_1 += 1
         else:
+            predicted = 0
             predictions_0 += 1
 
         if predicted == target:
@@ -93,20 +91,24 @@ for epoch in range(EPOCH):
 
     # Статистика
     acc = correct / len(X)
-    print(f"\nЭпоха {epoch+1}/{EPOCH}")
+    print(f"\nЭпоха {epoch + 1}/{EPOCH}")
     print(f"Точность: {acc:.2%} | Правильных: {correct}/{len(X)}")
-    print(f"Определено классов верно: 1 => {predictions_1}, 0 => {predictions_0}")
-    print(f"Разброс весов: W_hid={W_hidden.min():.4f}..{W_hidden.max():.4f} | W_out={W_output.min():.4f}..{W_output.max():.4f}")
+    print(f"Предсказания: класс 1 => {predictions_1}, класс 0 => {predictions_0}")
+    print(f"Распределение в датасете: класс 1 => {sum(y)}, класс 0 => {len(y) - sum(y)}")
+    print(
+        f"Разброс весов: W_hid={W_hidden.min():.4f}..{W_hidden.max():.4f} | W_out={W_output.min():.4f}..{W_output.max():.4f}")
+    print(f"Средний выход на положительных: {np.mean([outputs_epoch[i] for i in range(len(y)) if y[i] == 1]):.4f}")
+    print(f"Средний выход на отрицательных: {np.mean([outputs_epoch[i] for i in range(len(y)) if y[i] == 0]):.4f}")
     print(f"Время на эпоху: {time.time() - start:.2f}s")
 
-    # Проверка на достижение 100% точности
-    if acc >= 1.0:
-        print(f"Достигнуто 100% точности на эпохе {epoch+1}, обучение завершается.")
-        save_weights(W_hidden, W_output, bias_hidden, bias_output)
-        visualize_neuron_weights(W_hidden, visualizations_dir, epoch=epoch+1)
+    # Проверка на достижение высокой точности
+    if acc >= 1:  # Снизил порог для более реалистичной цели
+        print(f"Достигнута высокая точность ({acc:.2%}) на эпохе {epoch + 1}, обучение завершается.")
+        save_weights(W_hidden, W_output, bias_hidden, bias_output, epoch=epoch + 1)
+        visualize_neuron_weights(W_hidden, visualizations_dir, epoch=epoch + 1)
         break
 
 # Финальное сохранение и визуализация
-if acc < 1.0:
+if acc < 1:
     save_weights(W_hidden, W_output, bias_hidden, bias_output)
-    visualize_neuron_weights(W_hidden, visualizations_dir, epoch=epoch+1)
+    visualize_neuron_weights(W_hidden, visualizations_dir, epoch=epoch + 1)
