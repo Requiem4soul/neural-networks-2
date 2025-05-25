@@ -3,10 +3,13 @@ import time
 import datetime
 import os
 from PIL import Image
-from Input.base_input_data import My_img, POROG, MY_DATASET, EPOCH, LEARNING_RATE, HIDDEN_NEURONS
+from Input.base_input_data import My_img, POROG, MY_DATASET, EPOCH, LEARNING_RATE, HIDDEN_NEURONS, LOG, BUFFER_RANGE
 from Neurons.Train.forward_pass import forward_hidden_layer, forward_output_layer
 from Neurons.Train.backpropagation import backpropagate
 from Visual.visualization import visualize_neuron_weights
+
+# Переменная для прекращения обучения при повторении BUFFER_RANGE раз
+repeats = {}
 
 # Загружаем датасет
 data = np.load(MY_DATASET)
@@ -88,15 +91,33 @@ for epoch in range(EPOCH):
 
     # Статистика
     acc = correct / len(X)
+    acc_rounded = round(acc, 4)
+    repeats[acc_rounded] = repeats.get(acc_rounded, 0) + 1
+
+    if repeats[acc_rounded] >= BUFFER_RANGE:
+        print(f"\nТочность {acc_rounded:.2%} повторяется {repeats[acc_rounded]} раз. Прерываем обучение.")
+        break
+
+    # Общий вывод
     print(f"\nЭпоха {epoch + 1}/{EPOCH}")
     print(f"Точность: {acc:.2%} | Правильных: {correct}/{len(X)}")
     print(f"Предсказания: класс 1 => {predictions_1}, класс 0 => {predictions_0}")
     print(f"Распределение в датасете: класс 1 => {sum(y)}, класс 0 => {len(y) - sum(y)}")
-    print(
-        f"Разброс весов: W_hid={W_hidden.min():.4f}..{W_hidden.max():.4f} | W_out={W_output.min():.4f}..{W_output.max():.4f}")
-    print(f"Средний выход на положительных: {np.mean([outputs_epoch[i] for i in range(len(y)) if y[i] == 1]):.4f}")
-    print(f"Средний выход на отрицательных: {np.mean([outputs_epoch[i] for i in range(len(y)) if y[i] == 0]):.4f}")
-    print(f"Время на эпоху: {time.time() - start:.2f}s")
+
+    if LOG:
+        print("\nВеса от входов к скрытым нейронам:")
+        for i in range(W_hidden.shape[0]):  # по скрытым нейронам
+            row = ", ".join(f"{W_hidden[i, j]:+.4f}" for j in range(W_hidden.shape[1]))
+            print(f"W_hid[{i}]: [{row}] | bias: {bias_hidden[i]:+.4f}")
+
+        print("\nВеса от скрытых к выходному нейрону:")
+        for i in range(W_output.shape[0]):  # по выходным нейронам
+            row = ", ".join(f"{W_output[i, j]:+.4f}" for j in range(W_output.shape[1]))
+            print(f"W_out[{i}]: [{row}] | bias: {bias_output[i]:+.4f}")
+
+    print(f"\nВремя на эпоху: {time.time() - start:.2f}s")
+
+
 
     # Проверка на достижение высокой точности
     if acc >= 1:  # Снизил порог для более реалистичной цели

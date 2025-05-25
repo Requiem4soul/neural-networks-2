@@ -23,13 +23,6 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
     # 1. Ошибка выходного слоя
     final_error = expected_output - final_output
 
-    if LOG:
-        print("\n[ОШИБКА]")
-        print(f"Ожидаемый выход: {expected_output}")
-        print(f"Фактический выход: {final_output:.4f}")
-        print(f"Вычисленная ошибка: {final_error:.4f}")
-        print(f"Величина обновления: {final_error * sigmoid_derivative(final_output):.4f}")
-
     # 2. Градиент выходного слоя
     grad_output = final_error * sigmoid_derivative(final_output)
 
@@ -48,8 +41,10 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
 
     # 4. Обновление весов скрытого слоя
     # W_input_hidden имеет форму (HIDDEN_NEURONS, input_size)
-    for i in range(W_input_hidden.shape[0]):  # по скрытым нейронам
-        for j in range(W_input_hidden.shape[1]):  # по входным признакам
+    for i in range(W_input_hidden.shape[0]):
+        for j in range(W_input_hidden.shape[1]):
+            if inputs[j] == 0:
+                continue
             delta_W = learning_rate * hidden_errors[i] * inputs[j]
             W_input_hidden[i, j] += delta_W
 
