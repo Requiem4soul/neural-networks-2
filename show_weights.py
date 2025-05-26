@@ -1,7 +1,7 @@
 import numpy as np
 import os
 
-file_path = "Data/Storage/Saves/training_20250525_205203/weights/weights_final_20250525_205203.npz"
+file_path = "Data/Storage/Saves/training_20250525_225237/weights/weights_final_20250525_225237.npz"
 
 data = np.load(file_path)
 W_hidden = data["W_hidden"]
