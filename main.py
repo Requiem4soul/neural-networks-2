@@ -30,12 +30,8 @@ input_size = My_img.shape[0]
 output_size = 1
 
 # Инициализация весов и биасов с улучшенной стратегией
-# Xavier/Glorot инициализация
-std_hidden = np.sqrt(2.0 / input_size)
-std_output = np.sqrt(2.0 / HIDDEN_NEURONS)
-
-W_hidden = np.random.normal(0, std_hidden, (HIDDEN_NEURONS, input_size))
-W_output = np.random.normal(0, std_output, (output_size, HIDDEN_NEURONS))
+W_hidden = np.random.uniform(-0.5, 0.5, (HIDDEN_NEURONS, input_size))
+W_output = np.random.uniform(-0.5, 0.5, (output_size, HIDDEN_NEURONS))
 bias_hidden = np.zeros(HIDDEN_NEURONS)
 bias_output = np.zeros(output_size)
 
