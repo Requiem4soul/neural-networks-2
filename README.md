@@ -65,6 +65,16 @@
     ![изображение](https://github.com/user-attachments/assets/91094ebb-0c20-4b9b-a283-a82ff9c192c0)
     ![изображение](https://github.com/user-attachments/assets/003290cf-a9fe-4fb0-bf16-cabad40dacf5)
 
+    **Также вы можете посмотреть график обучения (точность за эпоху). Начинаться будет примерно с той же точностью, насколько у вас разделён датасет в "Data/Storage/generate_dataset.py", так как большинство не активируются и будут в классе "НЕ 1"**
+    
+    ![training_accuracy](https://github.com/user-attachments/assets/a30d902e-2b7b-4554-b769-a96e7f81e796)
+
+    **В папке с сохранёнными данными вы можете найти мета данные об обучение (количество скрытых нейронов, кол-во эпох, какой коэффициент обучения и так далее)**
+
+    ![изображение](https://github.com/user-attachments/assets/eb68bcef-14e1-4464-9e2f-ed240cc3221e)
+
+
+
 
 
 
