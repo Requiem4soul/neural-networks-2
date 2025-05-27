@@ -5,13 +5,25 @@ import os
 from PIL import Image
 from test import check_result
 from Data.Storage.generate_dataset import generate_dataset
-from Input.base_input_data import My_img, POROG, MY_DATASET, EPOCH, LEARNING_RATE, HIDDEN_NEURONS, LOG, BUFFER_RANGE
+from Input.base_input_data import My_img, POROG, MY_DATASET, EPOCH, LEARNING_RATE, HIDDEN_NEURONS, LOG, BUFFER_RANGE, DATASET_CHOISE
 from Neurons.Train.forward_pass import forward_hidden_layer, forward_output_layer
 from Neurons.Train.backpropagation import backpropagate
 from Visual.visualization import visualize_neuron_weights
+from Visual.graph import save_accuracy_graph
+from Visual.show_weights import print_weights
+from Visual.add_meta_data import save_metadata
+
+# Переменная которая сохранит какая эпоха была последней
+last_epoch = 0
+
+# Переменная начала обучения
+start_total_time = time.time()
 
 # Переменная для прекращения обучения при повторении BUFFER_RANGE раз
 repeats = {}
+
+# Переменная, которая будет сохранять точность
+epoch_stat = []
 
 print("="*100)
 # Лучше сюда поместить генерацию датасета, чтобы я очередной инфаркт не ловил
@@ -30,8 +42,8 @@ input_size = My_img.shape[0]
 output_size = 1
 
 # Инициализация весов и биасов с улучшенной стратегией
-W_hidden = np.random.uniform(-0.5, 0.5, (HIDDEN_NEURONS, input_size))
-W_output = np.random.uniform(-0.5, 0.5, (output_size, HIDDEN_NEURONS))
+W_hidden = np.random.uniform(-0.1, 0.1, (HIDDEN_NEURONS, input_size))
+W_output = np.random.uniform(-0.1, 0.1, (output_size, HIDDEN_NEURONS))
 bias_hidden = np.zeros(HIDDEN_NEURONS)
 bias_output = np.zeros(output_size)
 
@@ -101,17 +113,22 @@ for epoch in range(EPOCH):
     # Статистика
     acc = correct / len(X)
     acc_rounded = round(acc, 4)
+    epoch_stat.append(acc_rounded)
+    last_epoch = epoch + 1
     repeats[acc_rounded] = repeats.get(acc_rounded, 0) + 1
 
     if repeats[acc_rounded] >= BUFFER_RANGE:
         print(f"\nТочность {acc_rounded:.2%} повторяется {repeats[acc_rounded]} раз. Прерываем обучение.")
         break
 
+    print("=" * 100)
     # Общий вывод
     print(f"\nЭпоха {epoch + 1}/{EPOCH}")
     print(f"Точность: {acc:.2%} | Правильных: {correct}/{len(X)}")
-    print(f"Предсказания: класс 1 => {predictions_1}, класс 0 => {predictions_0}")
-    print(f"Распределение в датасете: класс 1 => {sum(y)}, класс 0 => {len(y) - sum(y)}")
+    print(f"Предсказания: класс 1: {predictions_1}, всё что НЕ класс 1: {predictions_0}")
+    print(f"Распределение в датасете: класс 1: {sum(y)}, всё что НЕ класс 1: {len(y) - sum(y)}")
+    print(f"Время на эпоху: {time.time() - start:.2f}s\n")
+    print("=" * 100 + "\n")
 
     if LOG:
         print("\nВеса от входов к скрытым нейронам:")
@@ -123,8 +140,6 @@ for epoch in range(EPOCH):
         for i in range(W_output.shape[0]):  # по выходным нейронам
             row = ", ".join(f"{W_output[i, j]:+.4f}" for j in range(W_output.shape[1]))
             print(f"W_out[{i}]: [{row}] | bias: {bias_output[i]:+.4f}")
-
-    print(f"\nВремя на эпоху: {time.time() - start:.2f}s")
 
 
 
@@ -144,3 +159,23 @@ if acc < 1:
     print("="*100)
 
 check_result(weights_path)
+
+save_accuracy_graph(epoch_stat, save_base_dir)
+
+if LOG:
+    print_weights(W_hidden, W_output, bias_hidden, bias_output)
+
+total_time_sec = time.time() - start_total_time
+save_metadata(
+    save_dir=save_base_dir,
+    My_img=My_img,
+    POROG=POROG,
+    DATASET_CHOISE=DATASET_CHOISE,
+    EPOCH=EPOCH,
+    LAST_EPOCH=last_epoch,
+    LEARNING_RATE=LEARNING_RATE,
+    HIDDEN_NEURONS=HIDDEN_NEURONS,
+    BUFFER_RANGE=BUFFER_RANGE,
+    acc_final=acc,
+    total_time_sec=total_time_sec
+)

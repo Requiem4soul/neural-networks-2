@@ -33,5 +33,5 @@ def visualize_neuron_weights(W_input_hidden, save_dir, epoch):
 
         # Создаём и сохраняем изображение
         img = Image.fromarray(rgb_image, mode='RGB')
-        img_path = os.path.join(save_dir, f"neuron_{neuron_idx}_epoch_{epoch}.png")
+        img_path = os.path.join(save_dir, f"neuron_{neuron_idx+1}_epoch_{epoch}.png")
         img.save(img_path)

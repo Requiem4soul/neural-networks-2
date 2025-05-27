@@ -25,7 +25,7 @@ def backpropagate(inputs, hidden_outputs, final_output, expected_output,
                   W_input_hidden, W_hidden_output,
                   bias_hidden, bias_output,
                   learning_rate):
-    # 1. Ошибка выходного слоя
+    # 1. Ошибка выходного слоя (НЕ БЕРИ ТУТ АКТИВАЦИОННУЮ В СИГМОИДУ, У ТЕБЯ УЖЕ В ПРЯМОМ ПРОХОДЕ ОНА ИЗ СИГМОИДЫ)
     final_error = expected_output - final_output
 
     # 2. Градиент выходного слоя

@@ -18,7 +18,6 @@ def generate_all_images():
     labels = [1 if np.array_equal(img, My_img) else 0 for img in all_images]
 
     print(f"Всего сгенерировано изображений: {len(all_images)}")
-    print(f"Количество положительных примеров (My_img): {sum(labels)}")
     print(f"Эталонное изображение: {My_img}")
 
     return np.array(all_images), np.array(labels)
@@ -77,7 +76,7 @@ def check_result(final_weights):
     acc = correct / len(X_test)
     print(f"\n{'=' * 50}")
     print(f"Точность распознования: {acc:.6f} ({acc:.2%}) | Правильно: {correct}/{len(X_test)}")
-    print(f"Определено классов: 1 => {predictions_1}, 0 => {predictions_0}")
+    print(f"Определено классов 1: {predictions_1}, НЕ классов 1: {predictions_0}")
     print(f"Ошибок: {len(X_test) - correct}")
 
     # Анализ ложных срабатываний

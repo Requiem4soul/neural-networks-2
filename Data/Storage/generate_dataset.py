@@ -61,11 +61,11 @@ def generate_dataset(dataset_type=1):
         labels=np.array(shuffled_labels)
     )
 
-    print("═" * 50)
+    print("=" * 50)
     print(f"Датасет пересоздан в {dataset_path}")
     print(f"Всего изображений: {len(all_images)}")
     print(f"Из них эталонных: {sum(shuffled_labels)}")
-    print("═" * 50 + "\n")
+    print("=" * 50 + "\n")
 
 
 if __name__ == "__main__":
